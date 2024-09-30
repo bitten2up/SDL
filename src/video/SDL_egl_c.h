@@ -23,7 +23,7 @@
 #ifndef SDL_egl_h_
 #define SDL_egl_h_
 
-#if SDL_VIDEO_OPENGL_EGL
+#if defined(SDL_VIDEO_OPENGL_EGL)
 
 #include "SDL_egl.h"
 

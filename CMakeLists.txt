@@ -2856,6 +2856,13 @@ elseif(N3DS)
     file(GLOB N3DS_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/n3ds/*.c)
     list(APPEND SOURCE_FILES ${N3DS_VIDEO_SOURCES})
     set(HAVE_SDL_VIDEO TRUE)
+    #enable gles
+    if(SDL_OPENGLES)
+      set(SDL_VIDEO_OPENGL_EGL 1)
+      set(HAVE_OPENGLES TRUE)
+      set(SDL_VIDEO_OPENGL_ES 1)
+      set(SDL_VIDEO_RENDER_OGL_ES 1)
+    endif()
   endif()
 
   if(SDL_LOCALE)

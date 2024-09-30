@@ -28,6 +28,7 @@
 #include "SDL_n3dsswkb.h"
 #include "SDL_n3dstouch.h"
 #include "SDL_n3dsvideo.h"
+#include "SDL_n3dsgl.h"
 
 #define N3DSVID_DRIVER_NAME "n3ds"
 
@@ -71,6 +72,17 @@ static SDL_VideoDevice *N3DS_CreateDevice(void)
     device->CreateSDLWindow = N3DS_CreateWindow;
     device->DestroyWindow = N3DS_DestroyWindow;
 
+    device->GL_LoadLibrary = N3DS_GLES_LoadLibrary;
+    device->GL_GetProcAddress = N3DS_GLES_GetProcAddress;
+    device->GL_UnloadLibrary = N3DS_GLES_UnloadLibrary;
+    device->GL_CreateContext = N3DS_GLES_CreateContext;
+    device->GL_MakeCurrent = N3DS_GLES_MakeCurrent;
+    device->GL_SetSwapInterval = N3DS_GLES_SetSwapInterval;
+    device->GL_GetSwapInterval = N3DS_GLES_GetSwapInterval;
+    device->GL_SwapWindow = N3DS_GLES_SwapWindow;
+    device->GL_DeleteContext = N3DS_GLES_DeleteContext;
+    device->GL_DefaultProfileConfig = N3DS_GLES_DefaultProfileConfig;
+
     device->HasScreenKeyboardSupport = N3DS_HasScreenKeyboardSupport;
     device->StartTextInput = N3DS_StartTextInput;
     device->StopTextInput = N3DS_StopTextInput;
@@ -90,7 +102,7 @@ VideoBootStrap N3DS_bootstrap = { N3DSVID_DRIVER_NAME, "N3DS Video Driver", N3DS
 
 static int N3DS_VideoInit(_THIS)
 {
-    gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, false);
+    gfxInit(GSP_RGBA8_OES, GSP_RGBA8_OES, true);
     hidInit();
 
     AddN3DSDisplay(GFX_TOP);
@@ -136,6 +148,12 @@ static void N3DS_VideoQuit(_THIS)
 {
     N3DS_SwkbQuit();
     N3DS_QuitTouch();
+    // this should not be needed if user code is right (SDL_GL_LoadLibrary/SDL_GL_UnloadLibrary calls match)
+    //     // this (user) error doesn't have the same effect on switch thought, as the driver needs to be unloaded (crash)
+    if(_this->gl_config.driver_loaded > 0) {
+    	N3DS_GLES_UnloadLibrary(_this);
+    	_this->gl_config.driver_loaded = 0;
+    }
 
     hidExit();
     gfxExit();

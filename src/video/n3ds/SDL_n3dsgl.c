@@ -20,21 +20,32 @@
 */
 #include "../../SDL_internal.h"
 
-#ifndef SDL_n3dsvideo_h_
-#define SDL_n3dsvideo_h_
+#if SDL_VIDEO_DRIVER_N3DS
 
-#include <3ds.h>
-#include "SDL_egl.h"
+/* Nintendo 3ds SDL video driver implementation */
 
-#include "../SDL_sysvideo.h"
-typedef struct SDL_WindowData
+#include "SDL_video.h"
+#include "SDL_n3dsgl.h"
+#include "SDL_n3dsvideo.h"
+
+void
+N3DS_GLES_DefaultProfileConfig(_THIS, int *mask, int *major, int *minor)
 {
-    EGLSurface egl_surface;
-    gfxScreen_t screen; /**< Keeps track of which N3DS screen is targetted */
-} SDL_WindowData;
+    *mask = SDL_GL_CONTEXT_PROFILE_ES;
+    *major = 2;
+    *minor = 0;
+}
 
-#define FRAMEBUFFER_FORMAT SDL_PIXELFORMAT_RGBA8888
+int
+N3DS_GLES_LoadLibrary(_THIS, const char *path)
+{
+    return SDL_EGL_LoadLibrary(_this, path, EGL_DEFAULT_DISPLAY, 0);
+}
 
-#endif /* SDL_n3dsvideo_h_ */
+SDL_EGL_CreateContext_impl(N3DS)
+SDL_EGL_MakeCurrent_impl(N3DS)
+SDL_EGL_SwapWindow_impl(N3DS)
 
-/* vi: set sts=4 ts=4 sw=4 expandtab: */
+#endif /* SDL_VIDEO_DRIVER_N3DS */
+
+/* vi: set ts=4 sw=4 expandtab: */
